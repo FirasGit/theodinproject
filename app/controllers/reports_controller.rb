@@ -1,12 +1,17 @@
 class ReportsController < ApplicationController
-  def create
-    return head :unauthorized unless user_signed_in?
+  before_action :authenticate_user!
 
-    @project = Project.find(params[:project_id])
-    @reported = ProjectReporter.report(
-      project: @project,
+  def create
+    report = Report.create(
+      project: project,
       reporter: current_user,
-      description: params[:description]
+      reason: params[:reason]
     )
+
+    render json: report, status: :ok
+  end
+
+  def project
+    Project.find(params[:project_id])
   end
 end
